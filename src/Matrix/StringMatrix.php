@@ -18,11 +18,11 @@ class StringMatrix extends LabeledMatrix
 	 * @param string[] $colLabels
 	 * @throws Exception when either $rowLabels or $colLabels is empty
 	 */
-	public function __construct($rowLabels, $colLabels)
+	public function __construct($rowLabels, $colLabels, array $augmentationMarkers = [])
 	{
 		$rowLabels = array_map([StringContainer::class, 'forValue'], $rowLabels);
 		$colLabels = array_map([StringContainer::class, 'forValue'], $colLabels);
-		parent::__construct($rowLabels, $colLabels);
+		parent::__construct($rowLabels, $colLabels, $augmentationMarkers);
 	}
 
 	public static function getMarker()

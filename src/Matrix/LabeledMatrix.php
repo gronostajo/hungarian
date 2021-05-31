@@ -22,12 +22,12 @@ class LabeledMatrix extends Matrix
 	 * @param object[] $colLabels
 	 * @throws Exception when either $rowLabels or $colLabels is empty
 	 */
-	public function __construct($rowLabels, $colLabels)
+	public function __construct($rowLabels, $colLabels, array $augmentationMarkers = [])
 	{
 		Assertions::assertLargerEqual(1, count($rowLabels), "Expected at least 1 row");
 		Assertions::assertLargerEqual(1, count($colLabels), "Expected at least 1 column");
 		$size = max(count($rowLabels), count($colLabels));
-		parent::__construct($size);
+		parent::__construct($size, $augmentationMarkers);
 
 		$this->rowLabels = new SplObjectStorage();
 		for ($i = 0; $i < count($rowLabels); $i++) {

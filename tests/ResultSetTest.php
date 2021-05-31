@@ -21,7 +21,7 @@ class ResultSetTest extends TestCase
 
 	public function testNormal()
 	{
-		$this->set->set(3, 5);
+		$this->set->set(3, 5, false);
 		self::assertEquals(5, $this->set->getRow(3));
 		self::assertTrue($this->set->hasRow(3));
 		self::assertEquals(3, $this->set->getCol(5));
@@ -30,12 +30,12 @@ class ResultSetTest extends TestCase
 
 	public function testInsertDuplicate()
 	{
-		$this->set->set(3, 5);
+		$this->set->set(3, 5, false);
 		TestUtil::assertThrows(function () {
-			$this->set->set(3, 7);
+			$this->set->set(3, 7, false);
 		});
 		TestUtil::assertThrows(function () {
-			$this->set->set(7, 5);
+			$this->set->set(7, 5, false);
 		});
 	}
 
@@ -55,7 +55,7 @@ class ResultSetTest extends TestCase
 
 	public function testRemove()
 	{
-		$this->set->set(3, 5);
+		$this->set->set(3, 5, false);
 		$this->set->removeRow(3);
 		self::assertFalse($this->set->hasRow(3));
 		self::assertFalse($this->set->hasCol(5));
@@ -63,7 +63,7 @@ class ResultSetTest extends TestCase
 
 	public function testRemoveReverse()
 	{
-		$this->set->set(3, 5);
+		$this->set->set(3, 5, false);
 		$this->set->removeCol(5);
 		self::assertFalse($this->set->hasRow(3));
 		self::assertFalse($this->set->hasCol(5));
@@ -86,10 +86,10 @@ class ResultSetTest extends TestCase
 	public function testSetExhaustion()
 	{
 		$set = new ResultSet(2);
-		$set->set(1, 2);
-		$set->set(3, 4);
+		$set->set(1, 2, false);
+		$set->set(3, 4, false);
 		TestUtil::assertThrows(function () use ($set) {
-			$set->set(5, 6);
+			$set->set(5, 6, false);
 		});
 	}
 
@@ -100,9 +100,9 @@ class ResultSetTest extends TestCase
 		$o3 = new stdClass();
 
 		$set = new ResultSet(3);
-		$set->set(0, 0);
-		$set->set(2, 1);
-		$set->set(1, 2);
+		$set->set(0, 0, false);
+		$set->set(2, 1, false);
+		$set->set(1, 2, false);
 
 		$set->applyLabels([$o1, $o2, $o3], [$o1, $o2, $o3]);
 		$this->assertEquals($o1, $set->getRow($o1));
@@ -113,8 +113,8 @@ class ResultSetTest extends TestCase
 	public function testGetCost1()
 	{
 		$set = new ResultSet(2);
-		$set->set(0, 0);
-		$set->set(1, 1);
+		$set->set(0, 0, false);
+		$set->set(1, 1, false);
 
 		$matrix = new Matrix(2);
 		$matrix->set(0, 0, 0);
@@ -128,9 +128,9 @@ class ResultSetTest extends TestCase
 	public function testGetCost2()
 	{
 		$set = new ResultSet(3);
-		$set->set(0, 0);
-		$set->set(2, 1);
-		$set->set(1, 2);
+		$set->set(0, 0, false);
+		$set->set(2, 1, false);
+		$set->set(1, 2, false);
 
 		$matrix = new Matrix(3);
 		for ($i = 0; $i < 3; $i++) {
@@ -145,9 +145,9 @@ class ResultSetTest extends TestCase
 	public function testGetCost3()
 	{
 		$set = new ResultSet(3);
-		$set->set(0, 2);
-		$set->set(2, 1);
-		$set->set(1, 0);
+		$set->set(0, 2, false);
+		$set->set(2, 1, false);
+		$set->set(1, 0, false);
 
 		$matrix = new Matrix(3);
 		for ($i = 0; $i < 3; $i++) {
@@ -162,11 +162,11 @@ class ResultSetTest extends TestCase
 	public function testGetCost4()
 	{
 		$set = new ResultSet(5);
-		$set->set(0, 3);
-		$set->set(1, 0);
-		$set->set(2, 4);
-		$set->set(3, 2);
-		$set->set(4, 1);
+		$set->set(0, 3, false);
+		$set->set(1, 0, false);
+		$set->set(2, 4, false);
+		$set->set(3, 2, false);
+		$set->set(4, 1, false);
 
 
 		$matrix = new Matrix(5);
@@ -182,12 +182,12 @@ class ResultSetTest extends TestCase
 	public function testMerge()
 	{
 		$set1 = new ResultSet(2);
-		$set1->set("a", "b");
-		$set1->set("b", "c");
+		$set1->set("a", "b", false);
+		$set1->set("b", "c", false);
 		$set2 = new ResultSet(3);
-		$set2->set("c", "d");
-		$set2->set("d", "e");
-		$set2->set("e", "f");
+		$set2->set("c", "d", false);
+		$set2->set("d", "e", false);
+		$set2->set("e", "f", false);
 
 		$result = ResultSet::merge($set1, $set2);
 		

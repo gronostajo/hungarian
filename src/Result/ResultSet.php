@@ -14,11 +14,11 @@ class ResultSet implements Iterator
 	public static function merge(ResultSet $r1, ResultSet $r2): ResultSet
 	{
 		$result = new ResultSet($r1->getSize() + $r2->getSize());
-		foreach ($r1 as list($row, $col)) {
-			$result->set($row, $col);
+		foreach ($r1 as [$row, $col, $augmented]) {
+			$result->set($row, $col, $augmented);
 		}
-		foreach ($r2 as list($row, $col)) {
-			$result->set($row, $col);
+		foreach ($r2 as [$row, $col, $augmented]) {
+			$result->set($row, $col, $augmented);
 		}
 		return $result;
 	}
@@ -27,6 +27,8 @@ class ResultSet implements Iterator
 	private $rowAssignments;
 	/** @var SplFixedArray */
 	private $colAssignments;
+	/** @var SplFixedArray */
+	private $augmentedFlags;
 	/** @var bool */
 	private $labeled = false;
 
@@ -39,9 +41,11 @@ class ResultSet implements Iterator
 	{
 		$this->rowAssignments->rewind();
 		$this->colAssignments->rewind();
+		$this->augmentedFlags->rewind();
 		while ($this->rowAssignments->valid() && $this->rowAssignments->current() !== $row) {
 			$this->rowAssignments->next();
 			$this->colAssignments->next();
+			$this->augmentedFlags->next();
 		}
 	}
 
@@ -49,13 +53,15 @@ class ResultSet implements Iterator
 	{
 		$this->rowAssignments->rewind();
 		$this->colAssignments->rewind();
+		$this->augmentedFlags->rewind();
 		while ($this->colAssignments->valid() && $this->colAssignments->current() !== $col) {
 			$this->rowAssignments->next();
 			$this->colAssignments->next();
+			$this->augmentedFlags->next();
 		}
 	}
 
-	public function set($row, $col): void
+	public function set($row, $col, bool $augmented): void
 	{
 		if ($this->hasRow($row)) {
 			throw new Exception("Row is already assigned");
@@ -65,19 +71,19 @@ class ResultSet implements Iterator
 		}
 		$this->rowAssignments->rewind();
 		$this->colAssignments->rewind();
-		while ($this->rowAssignments->current() !== null || $this->colAssignments->current() !== null) {
+		$this->augmentedFlags->rewind();
+		while ($this->rowAssignments->current() !== null) {
 			$this->rowAssignments->next();
 			$this->colAssignments->next();
-			if (
-				!$this->rowAssignments->valid() ||
-				!$this->colAssignments->valid()
-			) {
+			$this->augmentedFlags->next();
+			if (!$this->rowAssignments->valid()) {
 				throw new Exception("Cannot assign a new row or column, result set is exhausted");
 			}
 		}
 		$idx = $this->rowAssignments->key();
 		$this->rowAssignments[$idx] = $row;
 		$this->colAssignments[$idx] = $col;
+		$this->augmentedFlags[$idx] = $augmented;
 	}
 
 	public function removeRow($row): void
@@ -154,6 +160,7 @@ class ResultSet implements Iterator
 		}
 		$this->rowAssignments = new SplFixedArray($size);
 		$this->colAssignments = new SplFixedArray($size);
+		$this->augmentedFlags = new SplFixedArray($size);
 	}
 
 	/**
@@ -205,6 +212,7 @@ class ResultSet implements Iterator
 		$cost = 0;
 		$this->rowAssignments->rewind();
 		$this->colAssignments->rewind();
+		$this->augmentedFlags->rewind();
 		while ($this->rowAssignments->valid() && $this->colAssignments->valid()) {
 			$row = $this->rowAssignments->current();
 			$col = $this->colAssignments->current();
@@ -213,6 +221,7 @@ class ResultSet implements Iterator
 			}
 			$this->rowAssignments->next();
 			$this->colAssignments->next();
+			$this->augmentedFlags->next();
 		}
 		return $cost;
 	}
@@ -224,12 +233,14 @@ class ResultSet implements Iterator
 	{
 		$this->rowAssignments->rewind();
 		$this->colAssignments->rewind();
+		$this->augmentedFlags->rewind();
 	}
 
 	public function next(): void
 	{
 		$this->rowAssignments->next();
 		$this->colAssignments->next();
+		$this->augmentedFlags->next();
 	}
 
 	public function key()
@@ -241,15 +252,15 @@ class ResultSet implements Iterator
 	{
 		return [
 			$this->rowAssignments->current(),
-			$this->colAssignments->current()
+			$this->colAssignments->current(),
+			$this->augmentedFlags->current(),
 		];
 	}
 
 	public function valid(): bool
 	{
 		return (
-			$this->rowAssignments->valid() &&
-			$this->colAssignments->valid()
+			$this->rowAssignments->valid()
 		);
 	}
 }

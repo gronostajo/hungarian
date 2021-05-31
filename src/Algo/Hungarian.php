@@ -160,7 +160,12 @@ class Hungarian extends AssignmentSolver
 			if (count($coveredColumn) + count($coveredRow) === $matrix->getSize()) {
 				$set = new ResultSet($matrix->getSize());
 				foreach ($cstarred as $row => $col) {
-					$set->set($row, $col);
+					$set->set(
+						$row,
+						$col,
+						in_array($row, $matrix->getAugmentationMarkers(), true)
+							|| in_array($col, $matrix->getAugmentationMarkers(), true)
+					);
 				}
 
 				return $set;

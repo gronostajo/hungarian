@@ -23,6 +23,8 @@ class MatrixBuilder
 	/** @var callable */
 	private $mapper;
 
+	private $augmentationMarkers = [];
+
 	public function __construct()
 	{
 		$this->reset();
@@ -90,7 +92,7 @@ class MatrixBuilder
 		$rowSource = $this->augmentToLength($this->rowSource, $size, $type);
 		$colSource = $this->augmentToLength($this->colSource, $size, $type);
 
-		$matrix = new $type($rowSource, $colSource);
+		$matrix = new $type($rowSource, $colSource, $this->augmentationMarkers);
 		foreach ($rowSource as $row) {
 			foreach ($colSource as $col) {
 				if ($type::isMarker($row) || $type::isMarker($col)) {
@@ -111,7 +113,9 @@ class MatrixBuilder
 	private function augmentToLength(array $array, int $length, string $matrixClass): array
 	{
 		while (count($array) < $length) {
-			$array[] = $matrixClass::getMarker();
+			$marker = $matrixClass::getMarker();
+			$array[] = $marker;
+			$this->augmentationMarkers[] = $marker;
 		}
 		return $array;
 	}
